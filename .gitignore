@@ -1,0 +1,11 @@
+/docker/.env
+
+/.idea/
+/volumes/
+
+/frontend/node_modules/
+/frontend/.next/
+
+/backend/vendor/
+/backend/var/
+/backend/.phpunit.cache/

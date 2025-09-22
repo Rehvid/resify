@@ -1,0 +1,95 @@
+name: ${PROJECT_NAME}
+
+services:
+  db:
+    container_name: ${DB_CONTAINER_NAME}
+    image: postgres:16
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    networks:
+      - resify_network
+
+  pgadmin:
+    container_name: ${PGADMIN_CONTAINER_NAME}
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "8080:80" #panel
+    depends_on:
+      - db
+    networks:
+      - resify_network
+
+  redis:
+    container_name: ${REDIS_CONTAINER_NAME}
+    image: redis:7
+    volumes:
+      - redis_data:/data
+    networks:
+      - resify_network
+
+  rabbitmq:
+    container_name: ${RABBITMQ_CONTAINER_NAME}
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - "15672:15672" #panel
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - resify_network
+
+  maildev:
+    container_name: ${MAILDEV_CONTAINER_NAME}
+    image: maildev/maildev
+    ports:
+      - "1080:1080" #web
+      - "1025:1025" #smtp
+    networks:
+      - resify_network
+
+  backend:
+    container_name: ${BACKEND_CONTAINER_NAME}
+    build:
+      context: ../docker/infrastructure/backend
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+      - redis
+      - rabbitmq
+    volumes:
+      - ../backend:/var/www/src
+    networks:
+      - resify_network
+
+  nginx:
+    container_name: ${NGINX_CONTAINER_NAME}
+    image: nginx:latest
+    volumes:
+      - ./infrastructure/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ../backend/public:/var/www/src/public:ro
+      - ../volumes/nginx/logs:/var/log/nginx
+    ports:
+      - "4000:80"
+    depends_on:
+      - backend
+    networks:
+      - resify_network
+
+volumes:
+  db_data:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  resify_network:
+    driver: bridge
