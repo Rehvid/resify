@@ -40,6 +40,9 @@ cache-clear:
 create-migration:
 	cd docker && docker exec -it $(BACKEND_CONTAINER_NAME) bash -c "php bin/console make:migration"
 
+revert-last-migration:
+	cd docker && docker exec -it $(BACKEND_CONTAINER_NAME) bash -c "php bin/console doctrine:migrations:migrate prev"
+
 migrate:
 	cd docker && docker exec -it $(BACKEND_CONTAINER_NAME) bash -c "php bin/console doctrine:migrations:migrate"
 
@@ -47,6 +50,9 @@ schema-update-force:
 	cd docker && docker exec -it $(BACKEND_CONTAINER_NAME) bash -c "php bin/console doctrine:schema:update --force"
 
 #Backend tools
+schema-validate:
+	cd docker && docker exec -it $(BACKEND_CONTAINER_NAME) bash -c "php bin/console doctrine:schema:validate"
+
 phpstan:
 	cd docker && docker exec -it $(BACKEND_CONTAINER_NAME) bash -c "vendor/bin/phpstan analyse src/"
 
