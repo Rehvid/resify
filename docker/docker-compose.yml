@@ -13,6 +13,8 @@ services:
       POSTGRES_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     networks:
       - resify_network
+    ports:
+      - 5432:5432
 
   pgadmin:
     container_name: ${PGADMIN_CONTAINER_NAME}
