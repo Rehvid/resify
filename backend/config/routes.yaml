@@ -1,5 +1,5 @@
-controllers:
-    resource:
-        path: ../src/Controller/
-        namespace: App\Controller
+api_patient:
+    resource: '../src/UI/Controller/Api/Patient'
     type: attribute
+    prefix: /api/patient
+    name_prefix: api_patient_
